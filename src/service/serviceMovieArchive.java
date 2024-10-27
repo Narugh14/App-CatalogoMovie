@@ -2,6 +2,7 @@ package service;
 
 import dominio.Movie;
 
+import javax.xml.namespace.QName;
 import java.io.*;
 
 public class serviceMovieArchive implements IServiceMovies{
@@ -35,7 +36,8 @@ public class serviceMovieArchive implements IServiceMovies{
             System.out.println("Lista de archivo");
             BufferedReader buff = new BufferedReader(new FileReader(archivo));
             //Leemos el archivo
-            String linea = buff.readLine();
+            String linea;
+            linea = buff.readLine();
             //Leemos todas las lineas
             while(linea != null){
                 Movie movie = new Movie(linea);
@@ -51,11 +53,49 @@ public class serviceMovieArchive implements IServiceMovies{
 
     @Override
     public void addMovie(Movie movie) {
+        boolean anexar = false;
+        File archivo = new File(NAME_ARCHIVE);
 
+        try{
+            //Revisamos el archivo
+            anexar = archivo.exists();
+            PrintWriter Escribir = new PrintWriter(new FileWriter(archivo, anexar));
+            Escribir.println(movie);
+            Escribir.close();
+            System.out.println("Se agrego el archivo: "+ movie);
+
+        }catch (Exception e){
+            System.out.println("Ocurrio un error: "+ e.getMessage());
+        }
     }
 
     @Override
     public void searchMovie(Movie movie) {
+        File archivo = new File(NAME_ARCHIVE);
+        try{
+            BufferedReader buff = new BufferedReader(new FileReader(archivo));
+            String linea;
+            linea = buff.readLine();
+            int indice = 1;
+            boolean encontrar = false;
+            String movieSearch = movie.getName();
 
+            while(linea != null){
+                if(movieSearch != null && movieSearch.equalsIgnoreCase(linea)){
+                    encontrar = true;
+                    break;
+                }
+                linea = buff.readLine();
+                indice++;
+            }//fin while
+            if(encontrar)
+                System.out.println("Pelicula esta en id: " + indice );
+            else
+                System.out.println("No se encontro la pelicula: " + movie.getName());
+            //Cerrar archivo
+            buff.close();
+        }catch (Exception e){
+            System.out.println("Ocurrio un error: "+ e.getMessage());
+        }
     }
 }
